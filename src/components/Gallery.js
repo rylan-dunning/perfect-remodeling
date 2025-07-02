@@ -5,7 +5,6 @@ const Gallery = () => {
   const [images, setImages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     const getImages = async () => {
@@ -24,9 +23,15 @@ const Gallery = () => {
     getImages();
   }, []);
 
-  // Initialize SimpleLightbox with custom options
+  // Initialize SimpleLightbox when images are loaded
   useEffect(() => {
     if (!isLoading && images.length > 0 && window.SimpleLightbox) {
+      // Clean up any existing lightbox instances
+      const existingInstance = document.querySelector('.sl-wrapper');
+      if (existingInstance) {
+        existingInstance.remove();
+      }
+
       const options = {
         elements: '#portfolio a.portfolio-box',
         captionsData: 'title',
@@ -63,7 +68,6 @@ const Gallery = () => {
     }
   }, [isLoading, images]);
 
-  // Fallback to display before API data is available
   const renderLoading = () => (
     <div className="text-center py-5">
       <div className="spinner-border text-primary" role="status">
@@ -74,26 +78,48 @@ const Gallery = () => {
   );
 
   return (
-    <div id="portfolio" className="py-4">
+    <section className="page-section" id="portfolio">
+      <div className="container px-4 px-lg-5">
+        <div className="row gx-4 gx-lg-5 justify-content-center">
+          <div className="col-lg-8 text-center">
+            <h2 className="mt-0">Our Work</h2>
+            <hr className="divider" />
+            <p className="text-muted mb-5">
+              Take a look at some of our recent projects. Click on any image to view it in full size.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="container-fluid px-4">
         <div className="row g-4">
           {isLoading ? (
-            renderLoading()
+            <div className="col-12">
+              {renderLoading()}
+            </div>
           ) : error ? (
             <div className="col-12 text-center py-5">
               <p className="text-danger">{error}</p>
             </div>
           ) : (
             images.map((image, index) => (
-              <div className="col-lg-4 col-sm-6 mb-4" key={image.id || index}>
+              <div className="col-lg-4 col-sm-6 mb-4" key={image.id}>
                 <div className="portfolio-item">
-                  {/* Create title that includes both category and title for the lightbox popup */}
                   <a 
                     className="portfolio-box" 
-                    href={image.fullsizeUrl} 
-                    title={`${image.category}: ${image.title}`}
+                    href={image.fullsize_url} 
+                    title={image.title}
                   >
-                    <img className="img-fluid" src={image.thumbnailUrl} alt={image.title} />
+                    <img 
+                      className="img-fluid" 
+                      src={image.thumbnail_url} 
+                      alt={image.title}
+                      loading="lazy"
+                      onError={(e) => {
+                        console.error(`Failed to load image: ${image.filename}`);
+                        e.target.style.display = 'none';
+                      }}
+                    />
                     <div className="portfolio-box-caption">
                       <div className="project-category text-white-50">{image.category}</div>
                       <div className="project-name">Click to Expand</div>
@@ -105,7 +131,7 @@ const Gallery = () => {
           )}
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
