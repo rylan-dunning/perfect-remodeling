@@ -4,6 +4,7 @@ import Header from './components/Header';
 import About from './components/About';
 import Services from './components/Services';
 import Gallery from './components/Gallery';
+import BeforeAfter from './components/BeforeAfter';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -34,6 +35,7 @@ function App() {
       <About />
       <Services />
       <Gallery />
+      <BeforeAfter />
       <Contact />
       <Footer />
     </div>

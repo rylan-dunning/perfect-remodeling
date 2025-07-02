@@ -1,49 +1,35 @@
 import axios from 'axios';
 
-// Replace with your actual API endpoint after setting up API Gateway
-const API_URL = 'https://your-api-gateway-url.execute-api.us-east-1.amazonaws.com/prod';
+// Use environment variable or update with your actual API URL
+const API_URL = process.env.REACT_APP_API_URL || 'https://dx3r1qdu69.execute-api.us-east-2.amazonaws.com/v1';
 
+// Single function to fetch all images
 export const fetchGalleryImages = async () => {
   try {
-    // For development/testing, you might want a fallback
-    if (process.env.NODE_ENV === 'development') {
-      // Simulated API response with sample data
-      return mockGalleryImages;
-    }
-
-    const response = await axios.get(`${API_URL}/images`);
+    console.log('Fetching images from:', `${API_URL}/images`);
+    
+    const response = await axios.get(`${API_URL}/images`, {
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    console.log('Successfully fetched images:', response.data.length);
     return response.data;
   } catch (error) {
     console.error('Error fetching gallery images:', error);
+    console.error('Error details:', error.response?.data || error.message);
+    
+    // For development, return empty array instead of throwing
+    if (process.env.NODE_ENV === 'development' && !process.env.REACT_APP_API_URL) {
+      console.warn('No API URL configured. Returning empty array.');
+      return [];
+    }
+    
     throw error;
   }
 };
 
-// Mock data for development/testing - replace with your actual gallery data
-const mockGalleryImages = [
-  {
-    id: "bathroom-01",
-    category: "Bathroom",
-    title: "30\" x 60\" shower base - 12\" x 36\" wavy tile w/ 1/16\" grout, custom niche",
-    thumbnailUrl: "/assets/img/portfolio/thumbnails/1.JPG",
-    fullsizeUrl: "/assets/img/portfolio/fullsize/1.JPG",
-    order: 1
-  },
-  {
-    id: "bathroom-02",
-    category: "Bathroom",
-    title: "Dual vanity, lighting split, texture, paint, electrical, flooring",
-    thumbnailUrl: "/assets/img/portfolio/thumbnails/2.JPG",
-    fullsizeUrl: "/assets/img/portfolio/fullsize/2.JPG",
-    order: 2
-  },
-  {
-    id: "bathroom-03",
-    category: "Bathroom",
-    title: "Old built in vanity, wall mirror replaced with contemporary materials",
-    thumbnailUrl: "/assets/img/portfolio/thumbnails/3.JPG",
-    fullsizeUrl: "/assets/img/portfolio/fullsize/3.JPG",
-    order: 3
-  },
-  // Add more mock images as needed
-];
+// For backward compatibility, also export a function for before/after images
+// This uses the same endpoint but is kept separate for clarity
+export const fetchBeforeAfterImages = fetchGalleryImages;
